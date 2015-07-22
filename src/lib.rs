@@ -11,7 +11,6 @@ use rusqlite::SqliteConnection;
 
 use std::path::Path;
 
-/// A unified enum of errors returned by postgres::Connection
 #[derive(Debug)]
 pub enum Error {
     Connect(SqliteError),
