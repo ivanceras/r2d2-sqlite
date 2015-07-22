@@ -45,13 +45,14 @@ pub struct SqliteConnectionManager {
 impl SqliteConnectionManager {
     
     pub fn new(database: &str)-> Result<SqliteConnectionManager, SqliteError>{
-        let in_memory = match database{
-            ":memory:" => true,
-            _ => false,};
-        let path = if !in_memory{
-            Some(database.to_owned())
-        }else{None};
-        Ok(SqliteConnectionManager {in_memory: in_memory, path: path})
+        match database{
+            ":memory:" => {
+                Ok(SqliteConnectionManager {in_memory: true, path: None})
+            },
+            _ => {
+                Ok(SqliteConnectionManager {in_memory: false, path: Some(database.to_string())})
+           }
+        }
     }
 }
 
