@@ -1,0 +1,9 @@
+language: rust
+rust:
+- nightly
+- beta
+- stable
+addons:
+  postgresql: 9.3
+script:
+- cargo test
