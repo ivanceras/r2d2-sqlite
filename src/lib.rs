@@ -43,7 +43,7 @@ pub struct SqliteConnectionManager {
 }
 
 impl SqliteConnectionManager {
-    
+
     pub fn new(database: &str)-> Result<SqliteConnectionManager, SqliteError>{
         match database{
             ":memory:" => {
@@ -65,7 +65,6 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
             Ok(SqliteConnection::open_in_memory().unwrap())
         }
         else if self.path.is_some(){
-            println!("path: {:?}", self.path);
             Ok(SqliteConnection::open(&Path::new(self.path.as_ref().unwrap())).unwrap())
         }
         else{
