@@ -4,6 +4,6 @@ rust:
 - beta
 - stable
 addons:
-  postgresql: 9.3
+  sqlite3
 script:
 - cargo test
