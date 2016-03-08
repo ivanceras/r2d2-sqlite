@@ -5,15 +5,22 @@ extern crate rusqlite;
 use std::error;
 use std::error::Error as _StdError;
 use std::fmt;
+use std::convert;
 
-use rusqlite::SqliteError;
+use rusqlite::Error as RusqliteError;
 use rusqlite::Connection;
 
 use std::path::Path;
 
 #[derive(Debug)]
 pub enum Error {
-    Connect(SqliteError),
+    Connect(RusqliteError),
+}
+
+impl convert::From<RusqliteError> for Error {
+    fn from(e: RusqliteError) -> Error {
+        Error::Connect(e)
+    }
 }
 
 impl fmt::Display for Error {
@@ -44,7 +51,7 @@ pub struct SqliteConnectionManager {
 
 impl SqliteConnectionManager {
 
-    pub fn new(database: &str)-> Result<SqliteConnectionManager, SqliteError>{
+    pub fn new(database: &str)-> Result<SqliteConnectionManager, RusqliteError> {
         match database{
             ":memory:" => {
                 Ok(SqliteConnectionManager {in_memory: true, path: None})
@@ -62,13 +69,16 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
 
     fn connect(&self) -> Result<Connection, Error> {
         if self.in_memory {
-            Ok(Connection::open_in_memory().unwrap())
-        }
-        else if self.path.is_some() {
-            Ok(Connection::open(&Path::new(self.path.as_ref().unwrap())).unwrap())
-        }
-        else {
-            unreachable!()
+            let conn = try!(Connection::open_in_memory());
+            Ok(conn)
+        } else {
+            match self.path {
+                Some(ref path) => {
+                    let conn = try!(Connection::open(path));
+                    Ok(conn)
+                },
+                None => unreachable!(),
+            }
         }
     }
 
