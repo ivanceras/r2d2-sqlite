@@ -7,7 +7,7 @@ use std::error::Error as _StdError;
 use std::fmt;
 
 use rusqlite::SqliteError;
-use rusqlite::SqliteConnection;
+use rusqlite::Connection;
 
 use std::path::Path;
 
@@ -57,26 +57,26 @@ impl SqliteConnectionManager {
 }
 
 impl r2d2::ManageConnection for SqliteConnectionManager {
-    type Connection = SqliteConnection;
+    type Connection = Connection;
     type Error = Error;
 
-    fn connect(&self) -> Result<SqliteConnection, Error> {
-        if self.in_memory{
-            Ok(SqliteConnection::open_in_memory().unwrap())
+    fn connect(&self) -> Result<Connection, Error> {
+        if self.in_memory {
+            Ok(Connection::open_in_memory().unwrap())
         }
-        else if self.path.is_some(){
-            Ok(SqliteConnection::open(&Path::new(self.path.as_ref().unwrap())).unwrap())
+        else if self.path.is_some() {
+            Ok(Connection::open(&Path::new(self.path.as_ref().unwrap())).unwrap())
         }
-        else{
+        else {
             unreachable!()
         }
     }
 
-    fn is_valid(&self, conn: &mut SqliteConnection) -> Result<(), Error> {
+    fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
         conn.execute_batch("").map_err(Error::Connect)
     }
 
-    fn has_broken(&self, conn: &mut SqliteConnection) -> bool {
+    fn has_broken(&self, conn: &mut Connection) -> bool {
         false
     }
 }
