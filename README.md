@@ -5,3 +5,6 @@ r2d2-sqlite
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 r2d2 connection pool for sqlite based on Steven Fackler's r2d2-postgres. 
+
+
+[Documentation](http://ivanceras.github.io/r2d2-sqlite/r2d2_sqlite/)
