@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error","A unified enum of errors returned by `rusqlite::Connection`"]],"struct":[["SqliteConnectionManager","An `r2d2::ManageConnection` for `rusqlite::Connection`s."]]});
