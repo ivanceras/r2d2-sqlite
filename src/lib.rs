@@ -2,15 +2,11 @@
 extern crate r2d2;
 extern crate rusqlite;
 
-use std::error;
-use std::error::Error as _StdError;
+use std::error::{self, Error as StdError};
 use std::fmt;
 use std::convert;
 
-use rusqlite::Error as RusqliteError;
-use rusqlite::Connection;
-
-use std::path::Path;
+use rusqlite::{Connection, Error as RusqliteError};
 
 #[derive(Debug)]
 pub enum Error {
@@ -50,15 +46,20 @@ pub struct SqliteConnectionManager {
 }
 
 impl SqliteConnectionManager {
-
-    pub fn new(database: &str)-> Result<SqliteConnectionManager, RusqliteError> {
-        match database{
+    pub fn new(database: &str) -> Result<SqliteConnectionManager, RusqliteError> {
+        match database {
             ":memory:" => {
-                Ok(SqliteConnectionManager {in_memory: true, path: None})
-            },
+                Ok(SqliteConnectionManager {
+                    in_memory: true,
+                    path: None,
+                })
+            }
             _ => {
-                Ok(SqliteConnectionManager {in_memory: false, path: Some(database.to_string())})
-           }
+                Ok(SqliteConnectionManager {
+                    in_memory: false,
+                    path: Some(database.to_string()),
+                })
+            }
         }
     }
 }
@@ -69,24 +70,20 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
 
     fn connect(&self) -> Result<Connection, Error> {
         if self.in_memory {
-            let conn = try!(Connection::open_in_memory());
-            Ok(conn)
+            Connection::open_in_memory().map_err(Into::into)
         } else {
             match self.path {
-                Some(ref path) => {
-                    let conn = try!(Connection::open(path));
-                    Ok(conn)
-                },
+                Some(ref path) => Connection::open(path).map_err(Into::into),
                 None => unreachable!(),
             }
         }
     }
 
     fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
-        conn.execute_batch("").map_err(Error::Connect)
+        conn.execute_batch("").map_err(Into::into)
     }
 
-    fn has_broken(&self, conn: &mut Connection) -> bool {
+    fn has_broken(&self, _: &mut Connection) -> bool {
         false
     }
 }

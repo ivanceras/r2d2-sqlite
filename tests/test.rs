@@ -3,10 +3,8 @@ extern crate r2d2;
 extern crate r2d2_sqlite;
 extern crate tempdir;
 
-use std::sync::Arc;
 use std::sync::mpsc;
 use std::thread;
-use std::time::Duration;
 
 use r2d2::ManageConnection;
 use tempdir::TempDir;
@@ -17,7 +15,7 @@ use r2d2_sqlite::SqliteConnectionManager;
 fn test_basic() {
     let manager = SqliteConnectionManager::new(":memory:").unwrap();
     let config = r2d2::Config::builder().pool_size(2).build();
-    let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
+    let pool = r2d2::Pool::new(config, manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
@@ -48,7 +46,7 @@ fn test_basic() {
 fn test_file() {
     let manager = SqliteConnectionManager::new("file.db").unwrap();
     let config = r2d2::Config::builder().pool_size(2).build();
-    let pool = Arc::new(r2d2::Pool::new(config, manager).unwrap());
+    let pool = r2d2::Pool::new(config, manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
