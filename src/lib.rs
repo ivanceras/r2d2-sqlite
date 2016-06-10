@@ -6,7 +6,7 @@ use std::error::{self, Error as StdError};
 use std::fmt;
 use std::convert;
 
-use rusqlite::{Connection, Error as RusqliteError};
+use rusqlite::{Connection, Error as RusqliteError, OpenFlags};
 
 #[derive(Debug)]
 pub enum Error {
@@ -40,27 +40,30 @@ impl error::Error for Error {
 }
 
 
+enum ConnectionConfig {
+    InMemory(OpenFlags),
+    File(String, OpenFlags),
+}
+
 pub struct SqliteConnectionManager {
-    in_memory: bool,
-    path: Option<String>,
+    config: ConnectionConfig,
 }
 
 impl SqliteConnectionManager {
-    pub fn new(database: &str) -> Result<SqliteConnectionManager, RusqliteError> {
-        match database {
-            ":memory:" => {
-                Ok(SqliteConnectionManager {
-                    in_memory: true,
-                    path: None,
-                })
-            }
-            _ => {
-                Ok(SqliteConnectionManager {
-                    in_memory: false,
-                    path: Some(database.to_string()),
-                })
-            }
-        }
+    pub fn new(database: &str) -> Self {
+        Self::new_with_flags(database, OpenFlags::default())
+    }
+
+    pub fn new_with_flags(database: &str, flags: OpenFlags) -> Self {
+        SqliteConnectionManager { config: ConnectionConfig::File(database.to_string(), flags) }
+    }
+
+    pub fn new_in_memory() -> Self {
+        Self::new_in_memory_with_flags(OpenFlags::default())
+    }
+
+    pub fn new_in_memory_with_flags(flags: OpenFlags) -> Self {
+        SqliteConnectionManager { config: ConnectionConfig::InMemory(flags) }
     }
 }
 
@@ -69,14 +72,11 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
     type Error = Error;
 
     fn connect(&self) -> Result<Connection, Error> {
-        if self.in_memory {
-            Connection::open_in_memory().map_err(Into::into)
-        } else {
-            match self.path {
-                Some(ref path) => Connection::open(path).map_err(Into::into),
-                None => unreachable!(),
+        match self.config {
+                ConnectionConfig::InMemory(flags) => Connection::open_in_memory_with_flags(flags),
+                ConnectionConfig::File(ref path, flags) => Connection::open_with_flags(path, flags),
             }
-        }
+            .map_err(Into::into)
     }
 
     fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
