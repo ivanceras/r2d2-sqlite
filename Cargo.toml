@@ -5,7 +5,7 @@ authors = ["Jovansonlee Cesar<ivanceras@gmail.com>"]
 license = "MIT"
 description = "Sqlite support for the r2d2 connection pool"
 repository = "https://github.com/ivanceras/r2d2-sqlite"
-documentation = "http://ivanceras.github.io/r2d2-sqlite/r2d2_sqlite/"
+documentation = "https://docs.rs/r2d2_sqlite/"
 keywords = ["sqlite", "r2d2", "pool"]
 
 [lib]
