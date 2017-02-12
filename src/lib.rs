@@ -72,7 +72,6 @@ impl error::Error for Error {
 
 
 enum ConnectionConfig {
-    InMemory(OpenFlags),
     File(String, OpenFlags),
 }
 
@@ -95,20 +94,6 @@ impl SqliteConnectionManager {
     pub fn new_with_flags(database: &str, flags: OpenFlags) -> Self {
         SqliteConnectionManager { config: ConnectionConfig::File(database.to_string(), flags) }
     }
-
-    /// Creates a new `SqliteConnectionManager` in memory.
-    ///
-    /// See `rusqlite::Connection::open_in_memory`
-    pub fn new_in_memory() -> Self {
-        Self::new_in_memory_with_flags(OpenFlags::default())
-    }
-
-    /// Creates a new `SqliteConnectionManager` in memory with open flags.
-    ///
-    /// See `rusqlite::Connection::open_in_memory_with_flags`
-    pub fn new_in_memory_with_flags(flags: OpenFlags) -> Self {
-        SqliteConnectionManager { config: ConnectionConfig::InMemory(flags) }
-    }
 }
 
 impl r2d2::ManageConnection for SqliteConnectionManager {
@@ -117,7 +102,6 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
 
     fn connect(&self) -> Result<Connection, Error> {
         match self.config {
-                ConnectionConfig::InMemory(flags) => Connection::open_in_memory_with_flags(flags),
                 ConnectionConfig::File(ref path, flags) => Connection::open_with_flags(path, flags),
             }
             .map_err(Into::into)
