@@ -10,10 +10,11 @@ use r2d2::ManageConnection;
 use tempdir::TempDir;
 
 use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::Connection;
 
 #[test]
 fn test_basic() {
-    let manager = SqliteConnectionManager::new_in_memory();
+    let manager = SqliteConnectionManager::new("file.db");
     let config = r2d2::Config::builder().pool_size(2).build();
     let pool = r2d2::Pool::new(config, manager).unwrap();
 
@@ -54,9 +55,10 @@ fn test_file() {
     let pool1 = pool.clone();
     let t1 = thread::spawn(move || {
         let conn = pool1.get().unwrap();
+        let conn1:&Connection = &*conn;
         s1.send(()).unwrap();
         r2.recv().unwrap();
-        drop(conn);
+        drop(conn1);
     });
 
     let pool2 = pool.clone();
@@ -75,7 +77,7 @@ fn test_file() {
 
 #[test]
 fn test_is_valid() {
-    let manager = SqliteConnectionManager::new_in_memory();
+    let manager = SqliteConnectionManager::new("file.db");
     let config = r2d2::Config::builder().pool_size(1).test_on_check_out(true).build();
     let pool = r2d2::Pool::new(config, manager).unwrap();
 

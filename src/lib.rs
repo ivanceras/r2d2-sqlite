@@ -17,7 +17,7 @@
 //!
 //! fn main() {
 //!     let config = r2d2::Config::default();
-//!     let manager = SqliteConnectionManager::new_in_memory();
+//!     let manager = SqliteConnectionManager::new("file.db");
 //!     let pool = r2d2::Pool::new(config, manager).unwrap();
 //!
 //!     for i in 0..10i32 {
