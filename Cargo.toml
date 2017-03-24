@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_sqlite"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Jovansonlee Cesar<ivanceras@gmail.com>"]
 license = "MIT"
 description = "Sqlite support for the r2d2 connection pool"
