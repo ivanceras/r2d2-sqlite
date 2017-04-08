@@ -24,7 +24,7 @@
 //!         let pool = pool.clone();
 //!         thread::spawn(move || {
 //!             let conn = pool.get().unwrap();
-//!             conn.execute("INSERT INTO foo (bar) VALUES ($1)", &[&i]).unwrap();
+//!             conn.execute("INSERT INTO foo (bar) VALUES (?)", &[&i]).unwrap();
 //!         });
 //!     }
 //! }
