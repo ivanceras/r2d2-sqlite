@@ -35,11 +35,12 @@ extern crate rusqlite;
 
 
 use rusqlite::{Connection, Error as RusqliteError, OpenFlags};
+use std::path::{Path,PathBuf};
 
 
 
 enum ConnectionConfig {
-    File(String, OpenFlags),
+    File(PathBuf, OpenFlags),
 }
 
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
@@ -51,15 +52,15 @@ impl SqliteConnectionManager {
     /// Creates a new `SqliteConnectionManager` from file.
     ///
     /// See `rusqlite::Connection::open`
-    pub fn new(database: &str) -> Self {
-        Self::new_with_flags(database, OpenFlags::default())
+    pub fn new<P:AsRef<Path>>(path: P) -> Self {
+        Self::new_with_flags(path, OpenFlags::default())
     }
 
     /// Creates a new `SqliteConnectionManager` from file with open flags.
     ///
     /// See `rusqlite::Connection::open_with_flags`
-    pub fn new_with_flags(database: &str, flags: OpenFlags) -> Self {
-        SqliteConnectionManager { config: ConnectionConfig::File(database.to_string(), flags) }
+    pub fn new_with_flags<P:AsRef<Path>>(path: P, flags: OpenFlags) -> Self {
+        SqliteConnectionManager { config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags) }
     }
 }
 
