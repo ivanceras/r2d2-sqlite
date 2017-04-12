@@ -60,7 +60,9 @@ impl SqliteConnectionManager {
     ///
     /// See `rusqlite::Connection::open_with_flags`
     pub fn new_with_flags<P:AsRef<Path>>(path: P, flags: OpenFlags) -> Self {
-        SqliteConnectionManager { config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags) }
+        SqliteConnectionManager { 
+            config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags) 
+        }
     }
 }
 
