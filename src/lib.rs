@@ -34,7 +34,7 @@ extern crate r2d2;
 extern crate rusqlite;
 
 
-use rusqlite::{Connection, Error as RusqliteError, OpenFlags};
+use rusqlite::{Connection, Error, OpenFlags};
 use std::path::{Path,PathBuf};
 
 
@@ -66,16 +66,16 @@ impl SqliteConnectionManager {
 
 impl r2d2::ManageConnection for SqliteConnectionManager {
     type Connection = Connection;
-    type Error = RusqliteError;
+    type Error = rusqlite::Error;
 
-    fn connect(&self) -> Result<Connection, RusqliteError> {
+    fn connect(&self) -> Result<Connection, Error> {
         match self.config {
                 ConnectionConfig::File(ref path, flags) => Connection::open_with_flags(path, flags),
             }
             .map_err(Into::into)
     }
 
-    fn is_valid(&self, conn: &mut Connection) -> Result<(), RusqliteError> {
+    fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
         conn.execute_batch("").map_err(Into::into)
     }
 
