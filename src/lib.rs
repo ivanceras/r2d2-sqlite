@@ -1,3 +1,4 @@
+#![deny(warnings)]
 //! # Sqlite support for the `r2d2` connection pool.
 //!
 //! Library crate: [r2d2-sqlite](https://crates.io/crates/r2d2-sqlite/)
@@ -32,43 +33,9 @@
 extern crate r2d2;
 extern crate rusqlite;
 
-use std::error::{self, Error as StdError};
-use std::fmt;
-use std::convert;
 
 use rusqlite::{Connection, Error as RusqliteError, OpenFlags};
 
-/// A unified enum of errors returned by `rusqlite::Connection`
-#[derive(Debug)]
-pub enum Error {
-    Connect(RusqliteError),
-}
-
-impl convert::From<RusqliteError> for Error {
-    fn from(e: RusqliteError) -> Error {
-        Error::Connect(e)
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}: {}", self.description(), self.cause().unwrap())
-    }
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Connect(_) => "Error opening a connection",
-        }
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        match *self {
-            Error::Connect(ref err) => Some(err as &error::Error),
-        }
-    }
-}
 
 
 enum ConnectionConfig {
@@ -98,16 +65,16 @@ impl SqliteConnectionManager {
 
 impl r2d2::ManageConnection for SqliteConnectionManager {
     type Connection = Connection;
-    type Error = Error;
+    type Error = RusqliteError;
 
-    fn connect(&self) -> Result<Connection, Error> {
+    fn connect(&self) -> Result<Connection, RusqliteError> {
         match self.config {
                 ConnectionConfig::File(ref path, flags) => Connection::open_with_flags(path, flags),
             }
             .map_err(Into::into)
     }
 
-    fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
+    fn is_valid(&self, conn: &mut Connection) -> Result<(), RusqliteError> {
         conn.execute_batch("").map_err(Into::into)
     }
 
