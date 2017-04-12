@@ -35,7 +35,7 @@ extern crate rusqlite;
 
 
 use rusqlite::{Connection, Error, OpenFlags};
-use std::path::{Path,PathBuf};
+use std::path::{Path, PathBuf};
 
 
 
@@ -52,16 +52,16 @@ impl SqliteConnectionManager {
     /// Creates a new `SqliteConnectionManager` from file.
     ///
     /// See `rusqlite::Connection::open`
-    pub fn new<P:AsRef<Path>>(path: P) -> Self {
+    pub fn new<P: AsRef<Path>>(path: P) -> Self {
         Self::new_with_flags(path, OpenFlags::default())
     }
 
     /// Creates a new `SqliteConnectionManager` from file with open flags.
     ///
     /// See `rusqlite::Connection::open_with_flags`
-    pub fn new_with_flags<P:AsRef<Path>>(path: P, flags: OpenFlags) -> Self {
-        SqliteConnectionManager { 
-            config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags) 
+    pub fn new_with_flags<P: AsRef<Path>>(path: P, flags: OpenFlags) -> Self {
+        SqliteConnectionManager {
+            config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags),
         }
     }
 }

@@ -21,3 +21,5 @@ Cargo.lock
 *~
 *.swp
 *.swo
+#cargo fmt backup files
+*.bk
