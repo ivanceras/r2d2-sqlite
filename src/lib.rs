@@ -18,7 +18,7 @@
 //!
 //! fn main() {
 //!     let config = r2d2::Config::default();
-//!     let manager = SqliteConnectionManager::new("file.db");
+//!     let manager = SqliteConnectionManager::file("file.db");
 //!     let pool = r2d2::Pool::new(config, manager).unwrap();
 //!
 //!     for i in 0..10i32 {
@@ -34,35 +34,30 @@ extern crate r2d2;
 extern crate rusqlite;
 
 
-use rusqlite::{Connection, Error, OpenFlags};
+use rusqlite::{Connection, Error};
 use std::path::{Path, PathBuf};
 
 
 
-enum ConnectionConfig {
-    File(PathBuf, OpenFlags),
+enum Source {
+    File(PathBuf),
+    Memory,
 }
 
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
-pub struct SqliteConnectionManager {
-    config: ConnectionConfig,
-}
+pub struct SqliteConnectionManager(Source);
 
 impl SqliteConnectionManager {
     /// Creates a new `SqliteConnectionManager` from file.
     ///
     /// See `rusqlite::Connection::open`
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        Self::new_with_flags(path, OpenFlags::default())
+    pub fn file<P: AsRef<Path>>(path: P) -> Self {
+       SqliteConnectionManager(Source::File(path.as_ref().to_path_buf()))
     }
 
-    /// Creates a new `SqliteConnectionManager` from file with open flags.
-    ///
-    /// See `rusqlite::Connection::open_with_flags`
-    pub fn new_with_flags<P: AsRef<Path>>(path: P, flags: OpenFlags) -> Self {
-        SqliteConnectionManager {
-            config: ConnectionConfig::File(path.as_ref().to_path_buf(), flags),
-        }
+    /// Creates a new `SqliteConnectionManager` from memory.
+    pub fn memory() -> Self {
+        SqliteConnectionManager(Source::Memory)
     }
 }
 
@@ -71,9 +66,10 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
     type Error = rusqlite::Error;
 
     fn connect(&self) -> Result<Connection, Error> {
-        match self.config {
-                ConnectionConfig::File(ref path, flags) => Connection::open_with_flags(path, flags),
-            }
+        match self.0 {
+            Source::File(ref path) => Connection::open(path),
+            Source::Memory => Connection::open_in_memory()
+         }
             .map_err(Into::into)
     }
 
