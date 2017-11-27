@@ -17,9 +17,8 @@
 //! use r2d2_sqlite::SqliteConnectionManager;
 //!
 //! fn main() {
-//!     let config = r2d2::Config::default();
 //!     let manager = SqliteConnectionManager::file("file.db");
-//!     let pool = r2d2::Pool::new(config, manager).unwrap();
+//!     let pool = r2d2::Pool::new(manager).unwrap();
 //!
 //!     for i in 0..10i32 {
 //!         let pool = pool.clone();
