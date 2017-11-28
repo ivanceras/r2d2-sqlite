@@ -15,8 +15,10 @@ use rusqlite::Connection;
 #[test]
 fn test_basic() {
     let manager = SqliteConnectionManager::file("file.db");
-    let config = r2d2::Config::builder().pool_size(2).build();
-    let pool = r2d2::Pool::new(config, manager).unwrap();
+    let pool = r2d2::Pool::builder()
+        .max_size(2)
+        .build(manager)
+        .unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
@@ -46,8 +48,10 @@ fn test_basic() {
 #[test]
 fn test_file() {
     let manager = SqliteConnectionManager::file("file.db");
-    let config = r2d2::Config::builder().pool_size(2).build();
-    let pool = r2d2::Pool::new(config, manager).unwrap();
+    let pool = r2d2::Pool::builder()
+        .max_size(2)
+        .build(manager)
+        .unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
@@ -78,11 +82,11 @@ fn test_file() {
 #[test]
 fn test_is_valid() {
     let manager = SqliteConnectionManager::file("file.db");
-    let config = r2d2::Config::builder()
-        .pool_size(1)
+    let pool = r2d2::Pool::builder()
+        .max_size(1)
         .test_on_check_out(true)
-        .build();
-    let pool = r2d2::Pool::new(config, manager).unwrap();
+        .build(manager)
+        .unwrap();
 
     pool.get().unwrap();
 }
