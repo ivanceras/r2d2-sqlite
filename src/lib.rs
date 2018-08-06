@@ -37,13 +37,14 @@ use rusqlite::{Connection, Error};
 use std::path::{Path, PathBuf};
 
 
-
+#[derive(Debug)]
 enum Source {
     File(PathBuf),
     Memory,
 }
 
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
+#[derive(Debug)]
 pub struct SqliteConnectionManager(Source);
 
 impl SqliteConnectionManager {
