@@ -1,6 +1,6 @@
-extern crate rusqlite;
 extern crate r2d2;
 extern crate r2d2_sqlite;
+extern crate rusqlite;
 extern crate tempdir;
 
 use std::sync::mpsc;
@@ -15,29 +15,26 @@ use rusqlite::Connection;
 #[test]
 fn test_basic() {
     let manager = SqliteConnectionManager::file("file.db");
-    let pool = r2d2::Pool::builder()
-        .max_size(2)
-        .build(manager)
-        .unwrap();
+    let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
 
     let pool1 = pool.clone();
     let t1 = thread::spawn(move || {
-                               let conn = pool1.get().unwrap();
-                               s1.send(()).unwrap();
-                               r2.recv().unwrap();
-                               drop(conn);
-                           });
+        let conn = pool1.get().unwrap();
+        s1.send(()).unwrap();
+        r2.recv().unwrap();
+        drop(conn);
+    });
 
     let pool2 = pool.clone();
     let t2 = thread::spawn(move || {
-                               let conn = pool2.get().unwrap();
-                               s2.send(()).unwrap();
-                               r1.recv().unwrap();
-                               drop(conn);
-                           });
+        let conn = pool2.get().unwrap();
+        s2.send(()).unwrap();
+        r1.recv().unwrap();
+        drop(conn);
+    });
 
     t1.join().unwrap();
     t2.join().unwrap();
@@ -48,30 +45,27 @@ fn test_basic() {
 #[test]
 fn test_file() {
     let manager = SqliteConnectionManager::file("file.db");
-    let pool = r2d2::Pool::builder()
-        .max_size(2)
-        .build(manager)
-        .unwrap();
+    let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
     let (s2, r2) = mpsc::channel();
 
     let pool1 = pool.clone();
     let t1 = thread::spawn(move || {
-                               let conn = pool1.get().unwrap();
-                               let conn1: &Connection = &*conn;
-                               s1.send(()).unwrap();
-                               r2.recv().unwrap();
-                               drop(conn1);
-                           });
+        let conn = pool1.get().unwrap();
+        let conn1: &Connection = &*conn;
+        s1.send(()).unwrap();
+        r2.recv().unwrap();
+        drop(conn1);
+    });
 
     let pool2 = pool.clone();
     let t2 = thread::spawn(move || {
-                               let conn = pool2.get().unwrap();
-                               s2.send(()).unwrap();
-                               r1.recv().unwrap();
-                               drop(conn);
-                           });
+        let conn = pool2.get().unwrap();
+        s2.send(()).unwrap();
+        r1.recv().unwrap();
+        drop(conn);
+    });
 
     t1.join().unwrap();
     t2.join().unwrap();
