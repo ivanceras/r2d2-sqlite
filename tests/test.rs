@@ -93,3 +93,30 @@ fn test_error_handling() {
     let manager = SqliteConnectionManager::file(dirpath);
     assert!(manager.connect().is_err());
 }
+
+#[test]
+fn test_with_flags() {
+    // Open db as read only and try to modify it, it should fail
+    let manager = SqliteConnectionManager::file("file.db")
+        .with_flags(rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY);
+    let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
+    let conn = pool.get().unwrap();
+    let result = conn.execute_batch("CREATE TABLE hello(world)");
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_with_init() {
+    // Set user_version in init, then read it back to check that it was set
+    let manager = SqliteConnectionManager::file("file.db")
+        .with_init(|c| c.execute_batch("PRAGMA user_version=123"));
+    let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
+    let conn = pool.get().unwrap();
+    let db_version = conn
+        .query_row(
+            "PRAGMA user_version",
+            &[] as &[&rusqlite::types::ToSql],
+            |r| r.get::<_, i32>(0),
+        ).unwrap();
+    assert_eq!(db_version, 123);
+}
