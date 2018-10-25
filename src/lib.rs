@@ -32,10 +32,9 @@
 extern crate r2d2;
 extern crate rusqlite;
 
-
-use rusqlite::{Connection, Error};
+use rusqlite::{Connection, Error, OpenFlags};
+use std::fmt;
 use std::path::{Path, PathBuf};
-
 
 #[derive(Debug)]
 enum Source {
@@ -43,21 +42,74 @@ enum Source {
     Memory,
 }
 
+type InitFn = Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
+
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
-#[derive(Debug)]
-pub struct SqliteConnectionManager(Source);
+pub struct SqliteConnectionManager {
+    source: Source,
+    flags: OpenFlags,
+    init: Option<Box<InitFn>>,
+}
+
+impl fmt::Debug for SqliteConnectionManager {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut builder = f.debug_struct("SqliteConnectionManager");
+        let _ = builder.field("source", &self.source);
+        let _ = builder.field("flags", &self.source);
+        let _ = builder.field("init", &self.init.as_ref().map(|_| "InitFn"));
+        builder.finish()
+    }
+}
 
 impl SqliteConnectionManager {
     /// Creates a new `SqliteConnectionManager` from file.
     ///
     /// See `rusqlite::Connection::open`
     pub fn file<P: AsRef<Path>>(path: P) -> Self {
-       SqliteConnectionManager(Source::File(path.as_ref().to_path_buf()))
+        Self {
+            source: Source::File(path.as_ref().to_path_buf()),
+            flags: OpenFlags::default(),
+            init: None,
+        }
     }
 
     /// Creates a new `SqliteConnectionManager` from memory.
     pub fn memory() -> Self {
-        SqliteConnectionManager(Source::Memory)
+        Self {
+            source: Source::Memory,
+            flags: OpenFlags::default(),
+            init: None,
+        }
+    }
+
+    /// Converts `SqliteConnectionManager` into one that sets OpenFlags upon
+    /// connection creation.
+    ///
+    /// See `rustqlite::OpenFlags` for a list of available flags.
+    pub fn with_flags(self, flags: OpenFlags) -> Self {
+        Self { flags, ..self }
+    }
+
+    /// Converts `SqliteConnectionManager` into one that calls an initialization
+    /// function upon connection creation. Could be used to set PRAGMAs, for
+    /// example.
+    ///
+    /// ### Example
+    ///
+    /// Make a `SqliteConnectionManager` that sets the `foreign_keys` pragma to
+    /// true for every connection.
+    ///
+    /// ```rust,no_run
+    /// # use r2d2_sqlite::{SqliteConnectionManager};
+    /// let manager = SqliteConnectionManager::file("app.db")
+    ///     .with_init(|c| c.execute_batch("PRAGMA foreign_keys=1;"));
+    /// ```
+    pub fn with_init<F>(self, init: F) -> Self
+    where
+        F: Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static,
+    {
+        let init: Option<Box<InitFn>> = Some(Box::new(init));
+        Self { init, ..self }
     }
 }
 
@@ -66,11 +118,14 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
     type Error = rusqlite::Error;
 
     fn connect(&self) -> Result<Connection, Error> {
-        match self.0 {
-            Source::File(ref path) => Connection::open(path),
-            Source::Memory => Connection::open_in_memory()
-         }
-            .map_err(Into::into)
+        match self.source {
+            Source::File(ref path) => Connection::open_with_flags(path, self.flags),
+            Source::Memory => Connection::open_in_memory_with_flags(self.flags),
+        }.map_err(Into::into)
+        .and_then(|c| match self.init {
+            None => Ok(c),
+            Some(ref init) => init(&c).map(|_| c),
+        })
     }
 
     fn is_valid(&self, conn: &mut Connection) -> Result<(), Error> {
