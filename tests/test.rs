@@ -115,7 +115,7 @@ fn test_with_init() {
     let db_version = conn
         .query_row(
             "PRAGMA user_version",
-            &[] as &[&rusqlite::types::ToSql],
+            &[] as &[&dyn rusqlite::types::ToSql],
             |r| r.get::<_, i32>(0),
         ).unwrap();
     assert_eq!(db_version, 123);
