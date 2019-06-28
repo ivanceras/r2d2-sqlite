@@ -54,7 +54,7 @@ enum Source {
     Memory,
 }
 
-type InitFn = Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
+type InitFn = dyn Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
 
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
 pub struct SqliteConnectionManager {
