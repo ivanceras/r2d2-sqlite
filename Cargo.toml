@@ -23,3 +23,6 @@ rusqlite = "0.21"
 
 [dev-dependencies]
 tempdir = "0.3"
+
+[dev-dependencies.rusqlite]
+features = ["trace"]

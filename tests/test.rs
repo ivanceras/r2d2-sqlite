@@ -107,9 +107,15 @@ fn test_with_flags() {
 
 #[test]
 fn test_with_init() {
+    fn trace_sql(sql: &str) {
+        println!("{}", sql)
+    }
+
     // Set user_version in init, then read it back to check that it was set
-    let manager = SqliteConnectionManager::file("file.db")
-        .with_init(|c| c.execute_batch("PRAGMA user_version=123"));
+    let manager = SqliteConnectionManager::file("file.db").with_init(|c| {
+        c.trace(Some(trace_sql));
+        c.execute_batch("PRAGMA user_version=123")
+    });
     let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
     let conn = pool.get().unwrap();
     let db_version = conn
@@ -117,6 +123,7 @@ fn test_with_init() {
             "PRAGMA user_version",
             &[] as &[&dyn rusqlite::types::ToSql],
             |r| r.get::<_, i32>(0),
-        ).unwrap();
+        )
+        .unwrap();
     assert_eq!(db_version, 123);
 }
