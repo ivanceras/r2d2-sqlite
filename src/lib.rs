@@ -54,7 +54,7 @@ enum Source {
     Memory,
 }
 
-type InitFn = dyn Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
+type InitFn = dyn Fn(&mut Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
 
 /// An `r2d2::ManageConnection` for `rusqlite::Connection`s.
 pub struct SqliteConnectionManager {
@@ -118,7 +118,7 @@ impl SqliteConnectionManager {
     /// ```
     pub fn with_init<F>(self, init: F) -> Self
     where
-        F: Fn(&Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static,
+        F: Fn(&mut Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static,
     {
         let init: Option<Box<InitFn>> = Some(Box::new(init));
         Self { init, ..self }
@@ -133,10 +133,11 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
         match self.source {
             Source::File(ref path) => Connection::open_with_flags(path, self.flags),
             Source::Memory => Connection::open_in_memory_with_flags(self.flags),
-        }.map_err(Into::into)
-        .and_then(|c| match self.init {
+        }
+        .map_err(Into::into)
+        .and_then(|mut c| match self.init {
             None => Ok(c),
-            Some(ref init) => init(&c).map(|_| c),
+            Some(ref init) => init(&mut c).map(|_| c),
         })
     }
 
