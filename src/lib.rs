@@ -41,12 +41,10 @@
 //!         .unwrap()
 //! }
 //! ```
-extern crate r2d2;
-extern crate rusqlite;
-
 use rusqlite::{Connection, Error, OpenFlags};
 use std::fmt;
 use std::path::{Path, PathBuf};
+pub use rusqlite;
 
 #[derive(Debug)]
 enum Source {

@@ -1,12 +1,13 @@
 [package]
 name = "r2d2_sqlite"
-version = "0.14.0"
+version = "0.15.0"
 authors = ["Jovansonlee Cesar<ivanceras@gmail.com>"]
 license = "MIT"
 description = "Sqlite support for the r2d2 connection pool"
 repository = "https://github.com/ivanceras/r2d2-sqlite"
 documentation = "https://docs.rs/r2d2_sqlite/"
 keywords = ["sqlite", "r2d2", "pool"]
+edition = "2018"
 
 [lib]
 name = "r2d2_sqlite"
