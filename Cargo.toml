@@ -20,7 +20,7 @@ path = "tests/test.rs"
 
 [dependencies]
 r2d2 = "0.8"
-rusqlite = "0.22"
+rusqlite = "0.23"
 
 [dev-dependencies]
 tempdir = "0.3"
