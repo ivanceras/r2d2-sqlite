@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_sqlite"
-version = "0.15.0"
+version = "0.16.0"
 authors = ["Jovansonlee Cesar<ivanceras@gmail.com>"]
 license = "MIT"
 description = "Sqlite support for the r2d2 connection pool"
@@ -20,11 +20,11 @@ path = "tests/test.rs"
 
 [dependencies]
 r2d2 = "0.8"
-rusqlite = "0.22"
+rusqlite = "0.23"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [dev-dependencies.rusqlite]
-version = "0.22"
+version = "0.23"
 features = ["trace"]
