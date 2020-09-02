@@ -20,11 +20,11 @@ path = "tests/test.rs"
 
 [dependencies]
 r2d2 = "0.8"
-rusqlite = "0.23"
+rusqlite = "0.24"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [dev-dependencies.rusqlite]
-version = "0.23"
+version = "0.24"
 features = ["trace"]
