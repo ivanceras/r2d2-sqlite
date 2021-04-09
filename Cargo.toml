@@ -14,6 +14,9 @@ name = "r2d2_sqlite"
 path = "src/lib.rs"
 test = false
 
+[features]
+bundled = [ "rusqlite/bundled" ]
+
 [[test]]
 name = "test"
 path = "tests/test.rs"
