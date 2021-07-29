@@ -18,13 +18,23 @@ test = false
 name = "test"
 path = "tests/test.rs"
 
+
+
 [dependencies]
 r2d2 = "0.8"
-rusqlite = "0.25"
+
+[dependencies.rusqlite]
+version = "0.25"
+git = "https://github.com/rusqlite/rusqlite"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [dev-dependencies.rusqlite]
 version = "0.25"
+git = "https://github.com/rusqlite/rusqlite"
 features = ["trace"]
+
+
+[features]
+bundled-sqlcipher = ["rusqlite/bundled-sqlcipher"]
