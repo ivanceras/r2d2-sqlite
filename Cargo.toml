@@ -24,14 +24,14 @@ path = "tests/test.rs"
 r2d2 = "0.8"
 
 [dependencies.rusqlite]
-version = "0.25"
+version = "0.26"
 git = "https://github.com/rusqlite/rusqlite"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [dev-dependencies.rusqlite]
-version = "0.25"
+version = "0.26"
 git = "https://github.com/rusqlite/rusqlite"
 features = ["trace"]
 
