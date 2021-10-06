@@ -14,14 +14,11 @@ name = "r2d2_sqlite"
 path = "src/lib.rs"
 test = false
 
-[features]
-bundled = [ "rusqlite/bundled" ]
+
 
 [[test]]
 name = "test"
 path = "tests/test.rs"
-
-
 
 [dependencies]
 r2d2 = "0.8"
@@ -38,4 +35,5 @@ features = ["trace"]
 
 
 [features]
+bundled = [ "rusqlite/bundled" ]
 bundled-sqlcipher = ["rusqlite/bundled-sqlcipher"]
