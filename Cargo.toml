@@ -1,7 +1,7 @@
 [package]
 name = "r2d2_sqlite"
 version = "0.18.0"
-authors = ["Jovansonlee Cesar<ivanceras@gmail.com>"]
+authors = ["Jovansonlee Cesar<ivanceras@gmail.com>", "Hugo Woesthuis <hugo@woesthuis.eu>"]
 license = "MIT"
 description = "Sqlite support for the r2d2 connection pool"
 repository = "https://github.com/ivanceras/r2d2-sqlite"
@@ -25,14 +25,12 @@ r2d2 = "0.8"
 
 [dependencies.rusqlite]
 version = "0.26"
-git = "https://github.com/rusqlite/rusqlite"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [dev-dependencies.rusqlite]
 version = "0.26"
-git = "https://github.com/rusqlite/rusqlite"
 features = ["trace"]
 
 
