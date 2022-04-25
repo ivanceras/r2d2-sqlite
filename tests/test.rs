@@ -44,7 +44,7 @@ fn test_basic() {
 
 #[test]
 fn test_file() {
-    let manager = SqliteConnectionManager::memory();
+    let manager = SqliteConnectionManager::file("file.db");
     let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
@@ -130,7 +130,7 @@ fn test_with_init() {
 
 #[test]
 fn test_in_memory_db_is_shared() {
-    let manager = SqliteConnectionManager::file("file.db");
+    let manager = SqliteConnectionManager::memory();
     let pool = r2d2::Pool::builder().max_size(10).build(manager).unwrap();
 
     pool.get()
