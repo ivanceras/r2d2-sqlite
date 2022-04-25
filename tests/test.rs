@@ -44,7 +44,7 @@ fn test_basic() {
 
 #[test]
 fn test_file() {
-    let manager = SqliteConnectionManager::file("file.db");
+    let manager = SqliteConnectionManager::memory();
     let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
 
     let (s1, r1) = mpsc::channel();
@@ -126,4 +126,60 @@ fn test_with_init() {
         )
         .unwrap();
     assert_eq!(db_version, 123);
+}
+
+#[test]
+fn test_in_memory_db_is_shared() {
+    let manager = SqliteConnectionManager::memory();
+    let pool = r2d2::Pool::new(manager).unwrap();
+
+    pool.get()
+        .unwrap()
+        .execute("CREATE TABLE IF NOT EXISTS foo (bar INTEGER)", [])
+        .unwrap();
+
+    (0..10)
+        .map(|i: i32| {
+            let pool = pool.clone();
+            std::thread::spawn(move || {
+                let conn = pool.get().unwrap();
+                conn.execute("INSERT INTO foo (bar) VALUES (?)", [i])
+                    .unwrap();
+            })
+        })
+        .collect::<Vec<_>>()
+        .into_iter()
+        .map(std::thread::JoinHandle::join)
+        .collect::<Result<(), _>>()
+        .unwrap();
+
+    let conn = pool.get().unwrap();
+    let mut stmt = conn.prepare("SELECT bar from foo").unwrap();
+    let mut rows: Vec<i32> = stmt
+        .query_map([], |row| row.get(0))
+        .unwrap()
+        .into_iter()
+        .flatten()
+        .collect();
+    rows.sort();
+    assert_eq!(rows, (0..10).collect::<Vec<_>>());
+}
+
+#[test]
+fn test_different_in_memory_dbs_are_not_shared() {
+    let manager1 = SqliteConnectionManager::memory();
+    let pool1 = r2d2::Pool::new(manager1).unwrap();
+    let manager2 = SqliteConnectionManager::memory();
+    let pool2 = r2d2::Pool::new(manager2).unwrap();
+
+    pool1
+        .get()
+        .unwrap()
+        .execute_batch("CREATE TABLE foo (bar INTEGER)")
+        .unwrap();
+    pool2
+        .get()
+        .unwrap()
+        .execute_batch("CREATE TABLE foo (bar INTEGER)")
+        .unwrap();
 }
