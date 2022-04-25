@@ -149,8 +149,7 @@ fn test_in_memory_db_is_shared() {
         })
         .collect::<Vec<_>>()
         .into_iter()
-        .map(std::thread::JoinHandle::join)
-        .collect::<Result<(), _>>()
+        .try_for_each(std::thread::JoinHandle::join)
         .unwrap();
 
     let conn = pool.get().unwrap();
@@ -161,7 +160,7 @@ fn test_in_memory_db_is_shared() {
         .into_iter()
         .flatten()
         .collect();
-    rows.sort();
+    rows.sort_unstable();
     assert_eq!(rows, (0..10).collect::<Vec<_>>());
 }
 
@@ -177,9 +176,28 @@ fn test_different_in_memory_dbs_are_not_shared() {
         .unwrap()
         .execute_batch("CREATE TABLE foo (bar INTEGER)")
         .unwrap();
-    pool2
+    let result = pool2
         .get()
         .unwrap()
-        .execute_batch("CREATE TABLE foo (bar INTEGER)")
-        .unwrap();
+        .execute_batch("CREATE TABLE foo (bar INTEGER)");
+
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_in_memory_db_persists() {
+    let manager = SqliteConnectionManager::memory();
+
+    {
+        // Normally, `r2d2::Pool` won't drop connection unless timed-out or broken.
+        // So let's drop managed connection instead.
+        let conn = manager.connect().unwrap();
+        conn.execute_batch("CREATE TABLE foo (bar INTEGER)")
+            .unwrap();
+    }
+
+    let conn = manager.connect().unwrap();
+    let mut stmt = conn.prepare("SELECT * from foo").unwrap();
+    let result = stmt.execute([]);
+    assert!(result.is_ok());
 }
