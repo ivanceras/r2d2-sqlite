@@ -131,7 +131,7 @@ fn test_with_init() {
 #[test]
 fn test_in_memory_db_is_shared() {
     let manager = SqliteConnectionManager::memory();
-    let pool = r2d2::Pool::new(manager).unwrap();
+    let pool = r2d2::Pool::builder().max_size(10).build(manager).unwrap();
 
     pool.get()
         .unwrap()
