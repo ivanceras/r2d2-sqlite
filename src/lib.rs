@@ -41,15 +41,16 @@
 //!         .unwrap()
 //! }
 //! ```
+pub use rusqlite;
 use rusqlite::{Connection, Error, OpenFlags};
 use std::fmt;
 use std::path::{Path, PathBuf};
-pub use rusqlite;
+use uuid::Uuid;
 
 #[derive(Debug)]
 enum Source {
     File(PathBuf),
-    Memory,
+    Memory(String),
 }
 
 type InitFn = dyn Fn(&mut Connection) -> Result<(), rusqlite::Error> + Send + Sync + 'static;
@@ -86,7 +87,7 @@ impl SqliteConnectionManager {
     /// Creates a new `SqliteConnectionManager` from memory.
     pub fn memory() -> Self {
         Self {
-            source: Source::Memory,
+            source: Source::Memory(Uuid::new_v4().to_string()),
             flags: OpenFlags::default(),
             init: None,
         }
@@ -130,7 +131,10 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
     fn connect(&self) -> Result<Connection, Error> {
         match self.source {
             Source::File(ref path) => Connection::open_with_flags(path, self.flags),
-            Source::Memory => Connection::open_in_memory_with_flags(self.flags),
+            Source::Memory(ref id) => Connection::open_with_flags(
+                format!("file:{}?mode=memory&cache=shared", id),
+                self.flags,
+            ),
         }
         .map_err(Into::into)
         .and_then(|mut c| match self.init {
