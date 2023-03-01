@@ -1,13 +1,13 @@
 extern crate r2d2;
 extern crate r2d2_sqlite;
 extern crate rusqlite;
-extern crate tempdir;
+extern crate tempfile;
 
 use std::sync::mpsc;
 use std::thread;
 
 use r2d2::ManageConnection;
-use tempdir::TempDir;
+use tempfile::TempDir;
 
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::Connection;
@@ -88,7 +88,7 @@ fn test_is_valid() {
 #[test]
 fn test_error_handling() {
     //! We specify a directory as a database. This is bound to fail.
-    let dir = TempDir::new("r2d2-sqlite").expect("Could not create temporary directory");
+    let dir = TempDir::new().expect("Could not create temporary directory");
     let dirpath = dir.path().to_str().unwrap();
     let manager = SqliteConnectionManager::file(dirpath);
     assert!(manager.connect().is_err());
