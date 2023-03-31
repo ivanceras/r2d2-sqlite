@@ -24,7 +24,7 @@ path = "tests/test.rs"
 r2d2 = "0.8"
 
 [dependencies.rusqlite]
-version = "0.28"
+version = "0.29"
 
 [dev-dependencies]
 tempdir = "0.3"
