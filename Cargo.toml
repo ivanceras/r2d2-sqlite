@@ -1,7 +1,7 @@
 [package]
 name = "r2d2_sqlite"
-version = "0.21.0"
-authors = ["Jovansonlee Cesar<ivanceras@gmail.com>", "Hugo Woesthuis <hugo@woesthuis.eu>"]
+version = "0.22.0"
+authors = ["Jovansonlee Cesar <ivanceras@gmail.com>", "Hugo Woesthuis <hugo@woesthuis.eu>", "Jerebtw <jeremialp41@gmail.com>"]
 license = "MIT"
 description = "SQLite and SQLCipher support for the r2d2 connection pool"
 repository = "https://github.com/ivanceras/r2d2-sqlite"
