@@ -1,7 +1,11 @@
 [package]
 name = "r2d2_sqlite"
 version = "0.23.0"
-authors = ["Jovansonlee Cesar <ivanceras@gmail.com>", "Hugo Woesthuis <hugo@woesthuis.eu>", "Jerebtw <jeremialp41@gmail.com>"]
+authors = [
+  "Jovansonlee Cesar <ivanceras@gmail.com>",
+  "Hugo Woesthuis <hugo@woesthuis.eu>",
+  "Jerebtw <jeremialp41@gmail.com>",
+]
 license = "MIT"
 description = "SQLite and SQLCipher support for the r2d2 connection pool"
 repository = "https://github.com/ivanceras/r2d2-sqlite"
@@ -15,7 +19,6 @@ path = "src/lib.rs"
 test = false
 
 
-
 [[test]]
 name = "test"
 path = "tests/test.rs"
@@ -25,16 +28,16 @@ r2d2 = "0.8"
 uuid = { version = "1.0", features = ["v4", "fast-rng"] }
 
 [dependencies.rusqlite]
-version = "0.30"
+version = "0.31"
 
 [dev-dependencies]
 tempfile = "3"
 
 [dev-dependencies.rusqlite]
-version = "0.30"
+version = "0.31"
 features = ["trace"]
 
 
 [features]
-bundled = [ "rusqlite/bundled" ]
+bundled = ["rusqlite/bundled"]
 bundled-sqlcipher = ["rusqlite/bundled-sqlcipher"]
