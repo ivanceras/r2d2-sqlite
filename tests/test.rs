@@ -53,10 +53,9 @@ fn test_file() {
     let pool1 = pool.clone();
     let t1 = thread::spawn(move || {
         let conn = pool1.get().unwrap();
-        let conn1: &Connection = &*conn;
+        let _: &Connection = &*conn;
         s1.send(()).unwrap();
         r2.recv().unwrap();
-        drop(conn1);
     });
 
     let pool2 = pool.clone();
