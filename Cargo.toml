@@ -1,6 +1,6 @@
 [package]
 name = "r2d2_sqlite"
-version = "0.25.0"
+version = "0.26.0"
 authors = [
   "Jovansonlee Cesar <ivanceras@gmail.com>",
   "Hugo Woesthuis <hugo@woesthuis.eu>",
@@ -28,13 +28,13 @@ r2d2 = "0.8"
 uuid = { version = "1.0", features = ["v4", "fast-rng"] }
 
 [dependencies.rusqlite]
-version = "0.32"
+version = "0.33"
 
 [dev-dependencies]
 tempfile = "3"
 
 [dev-dependencies.rusqlite]
-version = "0.32"
+version = "0.33"
 features = ["trace"]
 
 
