@@ -28,7 +28,7 @@ r2d2 = "0.8"
 uuid = { version = "1.0", features = ["v4", "fast-rng"] }
 
 [dependencies.rusqlite]
-version = "0.33"
+version = "0.34"
 
 [dev-dependencies]
 tempfile = "3"
