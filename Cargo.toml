@@ -41,3 +41,6 @@ features = ["trace"]
 [features]
 bundled = ["rusqlite/bundled"]
 bundled-sqlcipher = ["rusqlite/bundled-sqlcipher"]
+bundled-sqlcipher-vendored-openssl = [
+  "rusqlite/bundled-sqlcipher-vendored-openssl",
+]
