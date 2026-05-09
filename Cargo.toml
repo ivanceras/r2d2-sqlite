@@ -39,8 +39,10 @@ features = ["trace"]
 
 
 [features]
+default = ["is-valid"]
 bundled = ["rusqlite/bundled"]
 bundled-sqlcipher = ["rusqlite/bundled-sqlcipher"]
 bundled-sqlcipher-vendored-openssl = [
   "rusqlite/bundled-sqlcipher-vendored-openssl",
 ]
+is-valid = []
