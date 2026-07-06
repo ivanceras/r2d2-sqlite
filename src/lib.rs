@@ -153,7 +153,6 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
                 connection()
             }
         }
-        .map_err(Into::into)
         .and_then(|mut c| match self.init {
             None => Ok(c),
             Some(ref init) => init(&mut c).map(|_| c),
@@ -167,7 +166,6 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
             #[cfg(not(feature = "is-valid"))]
             "",
         )
-        .map_err(Into::into)
     }
 
     fn has_broken(&self, _: &mut Connection) -> bool {
