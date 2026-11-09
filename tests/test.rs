@@ -10,6 +10,7 @@ use r2d2::ManageConnection;
 use tempfile::TempDir;
 
 use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::trace::{TraceEvent, TraceEventCodes};
 use rusqlite::Connection;
 
 #[test]
@@ -118,8 +119,10 @@ fn test_with_flags() {
 
 #[test]
 fn test_with_init() {
-    fn trace_sql(sql: &str) {
-        println!("{}", sql)
+    fn trace_sql(event: TraceEvent<'_>) {
+        if let TraceEvent::Stmt(_, sql) = event {
+            println!("{}", sql)
+        }
     }
 
     let dir = TempDir::new().unwrap();
@@ -127,7 +130,7 @@ fn test_with_init() {
 
     // Set user_version in init, then read it back to check that it was set
     let manager = SqliteConnectionManager::file(path).with_init(|c| {
-        c.trace(Some(trace_sql));
+        c.trace_v2(TraceEventCodes::SQLITE_TRACE_STMT, Some(trace_sql))?;
         c.execute_batch("PRAGMA user_version=123")
     });
     let pool = r2d2::Pool::builder().max_size(2).build(manager).unwrap();
