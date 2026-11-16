@@ -68,7 +68,7 @@ impl fmt::Debug for SqliteConnectionManager {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut builder = f.debug_struct("SqliteConnectionManager");
         let _ = builder.field("source", &self.source);
-        let _ = builder.field("flags", &self.source);
+        let _ = builder.field("flags", &self.flags);
         let _ = builder.field("init", &self.init.as_ref().map(|_| "InitFn"));
         builder.finish()
     }
