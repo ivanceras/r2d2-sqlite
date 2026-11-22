@@ -218,3 +218,20 @@ fn test_in_memory_db_persists() {
     let result = stmt.execute([]);
     assert!(result.is_ok());
 }
+
+#[test]
+fn test_in_memory_db_with_flags() {
+    let manager = SqliteConnectionManager::memory().with_flags(
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE | rusqlite::OpenFlags::SQLITE_OPEN_CREATE,
+    );
+    let conn = manager.connect().unwrap();
+    let file: String = conn
+        .query_row("PRAGMA database_list", [], |r| r.get(2))
+        .unwrap();
+    drop(conn);
+    drop(manager);
+    if !file.is_empty() {
+        let _ = std::fs::remove_file(&file);
+    }
+    assert_eq!(file, "");
+}

@@ -139,7 +139,7 @@ impl r2d2::ManageConnection for SqliteConnectionManager {
                 let connection = || {
                     Connection::open_with_flags(
                         format!("file:{}?mode=memory&cache=shared", id),
-                        self.flags,
+                        self.flags | OpenFlags::SQLITE_OPEN_URI,
                     )
                 };
 
